@@ -1,17 +1,30 @@
 const express = require('express');
-const sql = require('mssql');
+const tedious = require('tedious');
 const app = express();
 const port = 8080;
 
-// Connexion BDD
-const dbConfig = {
-    server: 'localhost',
-    port: '',
-    database: '',
-    user: '',
-    password: '',
-};
-
+var Connection = require('tedious').Connection;  
+var config = {  
+    server: 'LAPTOP-Q8KRVCC6\SQLEXPRESS',
+    authentication: {
+        type: 'default',
+        options: {
+            userName: 'orizon', 
+            password: 'orizon'  
+        }
+    },
+    options: {
+        encrypt: true,
+        database: 'Orizon'
+    }
+};  
+var connection = new Connection(config);  
+connection.on('connect', function(err) {  
+    // If no error, then good to proceed.
+    console.log("Connected");  
+});
+    
+connection.connect();
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
