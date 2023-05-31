@@ -18,6 +18,7 @@ var config = {
         database: 'Orizon'
     }
 };  
+
 var connection = new Connection(config);  
 connection.on('connect', function(err) {  
     // If no error, then good to proceed.
