@@ -1,0 +1,10 @@
+const dbConfig = {
+  user: 'orizon',
+  password: 'orizon',
+  server: 'LAPTOP-Q8KRVCC6', // Remplacez par le nom ou l'adresse IP de votre serveur SQL Server
+  database: 'Orizon',
+  options: {
+    trustedConnection: false, // Utilisez cette option si vous souhaitez utiliser l'authentification Windows
+    enableArithAbort: true // Utilisez cette option pour éviter les erreurs arithmétiques
+  }
+};
