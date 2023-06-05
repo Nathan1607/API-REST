@@ -4,7 +4,6 @@ const odbc = require('odbc');
 const app = express();
 
 const connectionConfig = {
-//    connectionString: 'Data Source=LAPTOP-Q8KRVCC6\\SQLEXPRESS;Initial Catalog=Orizon;User ID=orizon;Password=orizon'
     connectionString: 'Driver={SQL Server};Server=LAPTOP-Q8KRVCC6\\SQLEXPRESS;Database=Orizon;User=orizon;Password=orizon;'
 
 }
@@ -57,16 +56,32 @@ app.get('/data', ensureConnected, (req, res) => {
     });
 });
 
+// Route pour ajouter un utilisateur à la base de données
+app.post('/users', ensureConnected, (req, res) => {
+  const connection = req.app.locals.connection;
+  const { nom, prenom, email, password } = req.body;
+
+  connection.query('INSERT INTO Users (nom, prenom, email, password) VALUES (?, ?, ?, ?)', [nom, prenom, email, password], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
+    }
+
+    res.json({ success: true, message: 'Utilisateur inséré avec succès' });
+  });
+});
+
 function handleNotFound(req, res, next) {
     res.status(404).json({ error: 'Route introuvable' });
 }
 
 // Appliquer les middlewares
+app.use(express.json());
 app.use(closeConnection);
 app.use(handleNotFound);
 
 // Démarrer le serveur
-const port = 3000;
+const port = 8080;
 app.listen(port, () => {
   console.log(`Serveur démarré sur le port ${port}`);
 });
