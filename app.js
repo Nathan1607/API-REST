@@ -64,11 +64,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Route pour ajouter un utilisateur à la base de données
-app.post('/register', ensureConnected, (req, res) => {
+app.post('/registerUsers', ensureConnected, (req, res) => {
   const connection = req.app.locals.connection;
   const { name, first_name, mail, password } = req.body;
 
-  connection.query('INSERT INTO Users ( name, first_name, mail, password) VALUES ( ?, ?, ?, ?)', [name, first_name, mail, password], (err, result) => {
+  connection.query('INSERT INTO Users (name, first_name, mail, password, profil) VALUES ( ?, ?, ?, ?, ?)', [name, first_name, mail, password, '1'], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
@@ -77,6 +77,67 @@ app.post('/register', ensureConnected, (req, res) => {
     res.json({ success: true, message: 'Utilisateur inséré avec succès'});
   });
 });
+
+// Route pour ajouter un utilisateur + école dans la base de données
+app.post('/registerSchool', ensureConnected, (req, res) => {
+  const connection = req.app.locals.connection;
+  const { name, first_name, mail, school_name, address, city, postcode, password } = req.body;
+
+  connection.beginTransaction((err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur lors du démarrage de la transaction' });
+    }
+
+    // Requête d'insertion dans la table "Users"
+    connection.query('INSERT INTO Users (name, first_name, mail, password, profil) VALUES (?, ?, ?, ?, ?)', [name, first_name, mail, password, '2'], (err, result) => {
+      if (err) {
+        console.error(err);
+        connection.rollback(() => {
+          return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
+        });
+      }
+
+      // Requête d'insertion dans une autre table (par exemple, "AutreTable")
+      connection.query('INSERT INTO School (name, adress, city, postcode) VALUES (?, ?, ?, ?)', [school_name, address, city, postcode], (err, result) => {
+        if (err) {
+          console.error(err);
+          connection.rollback(() => {
+            return res.status(500).json({ error: 'Erreur lors de l\'insertion dans une autre table' });
+          });
+        }
+
+        connection.commit((err) => {
+          if (err) {
+            console.error(err);
+            connection.rollback(() => {
+              return res.status(500).json({ error: 'Erreur lors de la validation de la transaction' });
+            });
+          }
+
+          res.json({ success: true, message: 'Utilisateur inséré avec succès' });
+        });
+      });
+    });
+  });
+});
+
+// Route pour ajouter un professionnel à la base de données
+app.post('/registerProfessionnal', ensureConnected, (req, res) => {
+  const connection = req.app.locals.connection;
+  const { name, first_name, mail, password, company_name, job_name } = req.body;
+
+  connection.query('INSERT INTO Users (name, first_name, mail, password, profil, company_name, job_name) VALUES ( ?, ?, ?, ?, ?, ?, ?)', [name, first_name, mail, password, '3', company_name, job_name], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
+    }
+
+    res.json({ success: true, message: 'Utilisateur inséré avec succès'});
+  });
+});
+
+
 
 function handleNotFound(req, res, next) {
     res.status(404).json({ error: 'Route introuvable' });
