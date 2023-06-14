@@ -44,8 +44,7 @@ function closeConnection(req, res, next) {
 }
 
 
-// Exemple de route pour récupérer des données depuis la base de données
-
+// Route pour récupérer des données Users depuis la base de données
 app.get('/users', ensureConnected, (req, res) => {
     const connection = req.app.locals.connection;
   
@@ -57,6 +56,20 @@ app.get('/users', ensureConnected, (req, res) => {
   
       res.json(result);
     });
+});
+
+// Route pour récupérer des données Formations depuis la base de données
+app.get('/schools', ensureConnected, (req, res) => {
+  const connection = req.app.locals.connection;
+
+  connection.query('SELECT * FROM School', (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur lors de l\'exécution de la requête' });
+    }
+
+    res.json(result);
+  });
 });
 
 // Configuration du body-parser
@@ -136,6 +149,24 @@ app.post('/registerProfessionnal', ensureConnected, (req, res) => {
     res.json({ success: true, message: 'Utilisateur inséré avec succès'});
   });
 });
+
+
+// Route pour login des données Formations depuis la base de données
+app.post('/login', ensureConnected, (req, res) => {
+  const connection = req.app.locals.connection;
+  const { mail, password } = req.body;
+
+  connection.query('SELECT * FROM Users WHERE mail = ? AND password = ?', [mail, password], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur lors de l\'exécution de la requête' });
+    }
+    res.json(result);
+  });
+});
+
+
+
 
 
 
