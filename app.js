@@ -85,6 +85,9 @@ app.post('/registerUsers', ensureConnected, (req, res) => {
   connection.query('INSERT INTO Users (name, first_name, mail, password, profil) VALUES ( ?, ?, ?, ?, ?)', [name, first_name, mail, password, '1'], (err, result) => {
     if (err) {
       console.error(err);
+      if (err.code === 2627) { // Code d'erreur pour la violation de la contrainte UNIQUE KEY
+        return res.status(400).json({ error: 'L\'adresse e-mail est déjà utilisée. Veuillez en choisir une autre.' });
+      }
       return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
     }
 
@@ -107,6 +110,9 @@ app.post('/registerSchool', ensureConnected, (req, res) => {
     connection.query('INSERT INTO Users (name, first_name, mail, password, profil) VALUES (?, ?, ?, ?, ?)', [name, first_name, mail, password, '2'], (err, result) => {
       if (err) {
         console.error(err);
+        if (err.code === 2627) { // Code d'erreur pour la violation de la contrainte UNIQUE KEY
+          return res.status(400).json({ error: 'L\'adresse e-mail est déjà utilisée. Veuillez en choisir une autre.' });
+        }
         connection.rollback(() => {
           return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
         });
@@ -116,6 +122,9 @@ app.post('/registerSchool', ensureConnected, (req, res) => {
       connection.query('INSERT INTO School (name, adress, city, postcode) VALUES (?, ?, ?, ?)', [school_name, address, city, postcode], (err, result) => {
         if (err) {
           console.error(err);
+          if (err.code === 2627) { // Code d'erreur pour la violation de la contrainte UNIQUE KEY
+            return res.status(400).json({ error: 'L\'adresse e-mail est déjà utilisée. Veuillez en choisir une autre.' });
+          }
           connection.rollback(() => {
             return res.status(500).json({ error: 'Erreur lors de l\'insertion dans une autre table' });
           });
@@ -144,6 +153,9 @@ app.post('/registerProfessionnal', ensureConnected, (req, res) => {
   connection.query('INSERT INTO Users (name, first_name, mail, password, profil, company_name, job_name) VALUES ( ?, ?, ?, ?, ?, ?, ?)', [name, first_name, mail, password, '3', company_name, job_name], (err, result) => {
     if (err) {
       console.error(err);
+      if (err.code === 2627) { // Code d'erreur pour la violation de la contrainte UNIQUE KEY
+        return res.status(400).json({ error: 'L\'adresse e-mail est déjà utilisée. Veuillez en choisir une autre.' });
+      }
       return res.status(500).json({ error: 'Erreur lors de l\'insertion de l\'utilisateur' });
     }
 
