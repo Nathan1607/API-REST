@@ -1,6 +1,7 @@
 const express = require('express');
 const odbc = require('odbc');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -161,9 +162,19 @@ app.post('/login', ensureConnected, (req, res) => {
       console.error(err);
       return res.status(500).json({ error: 'Erreur lors de l\'exécution de la requête' });
     }
-    res.json(result);
+
+    if (result.length === 0) {
+      return res.status(401).json({ error: 'Adresse e-mail ou mot de passe incorrect' });
+    }
+
+    // Les informations de connexion sont valides, générer un jeton d'authentification
+    const userId = result[0].id;
+    const token = jwt.sign({ userId }, 'B5F61F537C695F36447823C3644B3D95E68E71947A11C502EC5D0D6A5F0B9B2A');
+
+    res.json({ success: true, message: 'Utilisateur existant', token });
   });
 });
+
 
 
 
